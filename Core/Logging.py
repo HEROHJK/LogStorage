@@ -1,11 +1,10 @@
 from time import time
-import sqlite3
+import sqlite3, sqlite3.dbapi2
 
 current_milli_time = lambda: int(round(time() * 1000))
 
 
-def InsertLog(userdb:str, message:str, tags:[]):
-    conn = sqlite3.connect(userdb)
+def InsertLog(conn: sqlite3.dbapi2, message:str, tags:[]):
     c = conn.cursor()
     #로그인포생성
     c.execute('INSERT INTO "loginfo" ("last") VALUES (0)')
@@ -47,6 +46,15 @@ def InsertLog(userdb:str, message:str, tags:[]):
                 query = 'INSERT INTO "tag_list" ("tagidx", "logidx") VALUES(:tagIdx, :logIdx)'
                 c.execute(query, {"tagIdx":tagidx, "logIdx":idx})
                 conn.commit()
-
-    conn.close()
     return idx
+
+def find_log_to_idx(conn: sqlite3.dbapi2, logidx:int):
+    c = conn.cursor()
+    query = 'SELECT idx FROM "loginfo" WHERE idx=:logIdx'
+    c.execute(query, {"logIdx": logidx})
+    result = c.fetchone()
+    if result == None:
+        return -1
+    return result[0]
+
+#def ModifyLog(conn: sqlite3.dbapi2, "",message:str, tags:[])
