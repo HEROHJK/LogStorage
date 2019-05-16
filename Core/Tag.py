@@ -1,5 +1,4 @@
 import sqlite3.dbapi2
-from Logging import find_log_to_idx
 
 '''
 구현사항
@@ -11,6 +10,7 @@ from Logging import find_log_to_idx
 * 로그 태그 입력 : 해당 로그의 태그 입력
 * 리스트 태그 횟수 조회 : 태그리스트에서 태그 횟수 조회
 * 리스트 태그 조회 : 태그리스트에서 해당 태그 사용중인 로그 조회
+* 로그의 모든 태그 삭제 : 해당 로그의 모든 태그 삭제 
 '''
 
 
@@ -133,4 +133,27 @@ def find_tag_to_list(conn: sqlite3.dbapi2, tag_name: str, logidx: int = 0):
         logs.append(row[0])
 
     return logs
+
+
+def delete_all_tag_to_log(conn: sqlite3.dbapi2, logidx: int):
+    c = conn.cursor()
+    log_result = find_log_to_idx(conn, logidx)
+    if log_result <= 0:
+        return -1
+
+    query = 'DELETE FROM "tag_list" WHERE logidx=:logIdx'
+    c.execute(query, {"logIdx": logidx})
+    conn.commit()
+
+    return 1
+
+
+def find_log_to_idx(conn: sqlite3.dbapi2, logidx: int):
+    c = conn.cursor()
+    query = 'SELECT idx FROM "loginfo" WHERE idx=:logIdx'
+    c.execute(query, {"logIdx": logidx})
+    result = c.fetchone()
+    if result is None:
+        return -1
+    return result[0]
 
