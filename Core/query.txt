@@ -1,0 +1,55 @@
+create table userinfo
+(
+    idx   INTEGER not null
+        primary key autoincrement,
+    key   TEXT    not null,
+    value TEXT    not null
+);
+
+create table loginfo
+(
+    idx  INTEGER not null
+        primary key autoincrement,
+    last INTEGER default 0 not null
+);
+
+create table log
+(
+    idx           INTEGER not null
+        primary key autoincrement,
+    revisioncount INTEGER default 0 not null,
+    infoidx       INTEGER not null
+        references loginfo,
+    message       TEXT,
+    writedate     INTEGER not null
+);
+
+create table log_public_list
+(
+    idx      integer not null
+        constraint log_public_list_pk
+            primary key autoincrement,
+    category INTEGER not null,
+    value    TEXT    not null,
+    logidx   INTEGER not null
+        references loginfo
+);
+
+create table tag
+(
+    idx  integer not null
+        constraint tag_pk
+            primary key autoincrement,
+    name text    not null
+);
+
+create table tag_list
+(
+    idx    integer not null
+        constraint tag_list_pk
+            primary key autoincrement,
+    tagidx integer not null
+        references tag,
+    logidx integer not null
+        references loginfo
+);
