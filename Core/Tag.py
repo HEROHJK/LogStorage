@@ -99,6 +99,12 @@ def delete_tag_to_log(conn: sqlite3.dbapi2, tagname: str, logidx: int):
     c.execute(query, {"tagIdx": tag_result, "logIdx": log_result})
     conn.commit()
 
+    # 태그를 지운 후 그 태그가 더이상 리스트에서 쓰이지 않는다면 제거
+    tag_count = find_tag_count_to_list(conn, tagname)
+
+    if tag_count == 0:
+        delete_tag(conn,tagname)
+
     return 1
 
 
@@ -145,6 +151,13 @@ def delete_all_tag_to_log(conn: sqlite3.dbapi2, logidx: int):
     c.execute(query, {"logIdx": logidx})
     conn.commit()
 
+    # 태그를 지운 후 그 태그가 더이상 리스트에서 쓰이지 않는다면 제거
+    for tag in get_all_tags(conn):
+        tag_count = find_tag_count_to_list(conn, tag)
+
+        if tag_count == 0:
+            delete_tag(conn, tag)
+
     return 1
 
 
@@ -156,4 +169,16 @@ def find_log_to_idx(conn: sqlite3.dbapi2, logidx: int):
     if result is None:
         return -1
     return result[0]
+
+
+def get_all_tags(conn: sqlite3.dbapi2):
+    c = conn.cursor()
+    query = 'SELECT name FROM tag'
+    c.execute(query)
+    rows = c.fetchall()
+    tags = []
+    for row in rows:
+        tags.append(row[0])
+
+    return tags
 
