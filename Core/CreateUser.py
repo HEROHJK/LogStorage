@@ -20,6 +20,8 @@ def CreateUser(id:str, pw:str):
 
     conn.close()
 
+    return dbPath+id+'.db'
+
 
 def __CreateTables(id):
     conn = sqlite3.connect(dbPath + id + '.db')
