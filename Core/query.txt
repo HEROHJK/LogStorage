@@ -10,7 +10,8 @@ create table loginfo
 (
     idx  INTEGER not null
         primary key autoincrement,
-    last INTEGER default 0 not null
+    last INTEGER default 0 not null,
+    "writedate"	Integer not null
 );
 
 create table log

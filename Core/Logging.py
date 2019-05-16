@@ -1,4 +1,5 @@
-from time import time
+from time import time, mktime
+from datetime import datetime, timedelta
 import sqlite3.dbapi2
 import Tag
 
@@ -8,7 +9,8 @@ current_milli_time = lambda: int(round(time() * 1000))
 def insert_log(conn: sqlite3.dbapi2, message:str, tags:[]):
     c = conn.cursor()
     # 로그인포생성
-    c.execute('INSERT INTO "loginfo" ("last") VALUES (0)')
+    query = 'INSERT INTO "loginfo" ("last", "writedate") VALUES (0, :writeDate)'
+    c.execute(query, {"writeDate": current_milli_time()})
     conn.commit()
     # 생성된 번호 가져오기
     c.execute('SELECT idx FROM loginfo ORDER BY idx DESC')
@@ -78,3 +80,19 @@ def modify_log(conn: sqlite3.dbapi2, logidx: int, message: str, tags: [] = []):
                 # 조건대로 찾아서 안나오면 등록
                 Tag.insert_tag_to_log(conn, tag, logidx)
 
+
+def find_log(conn: sqlite3.dbapi2, conditions: [] = []):
+    c = conn.cursor()
+    # 조건이 없으면 당일의 로그들을 보여준다
+    if len(conditions) == 0:
+        start_date = get_date(datetime.now().year, datetime.now().month, datetime.now().day)
+        end_date = get_date(datetime.now().year, datetime.now().month, datetime.now().day, False)
+
+        #query = 'SELECT * FROM "loginfo" WHERE '
+
+
+def get_date(year: int, month: int, day: int, started: bool = True):
+    date = datetime(year, month, day, 0, 0, 0, 0)
+    if started is False:
+        date = date + timedelta(days=1, microseconds=-1)
+    return (date, int(round(mktime(date.timetuple())*1000)))
