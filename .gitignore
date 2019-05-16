@@ -1,3 +1,5 @@
 venv/
 LogStorage/Core/.idea/
 Core/.idea/
+passwordKey.py
+Core/__pycache__/
